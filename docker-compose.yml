@@ -1,0 +1,47 @@
+version: '2.0'
+services:
+  nginx:
+    #容器名称
+    container_name: "appdockernginx"
+    #镜像文件  本次使用1.15.7  可使用nginx:lastest最新版
+    image: nginx:1.15.7
+    #端口映射 宿机 ：容器
+    ports:
+      - "8111:80"
+    #依赖关系
+    depends_on:
+      - "php"
+    #目录挂载
+    volumes:
+      - ./nginx/html:/var/www/html/:rw
+      - ./nginx/conf.d:/etc/nginx/conf.d/:rw
+      - ./nginx/logs:/var/log/nginx/:rw
+      - ./nginx/ssl:/etc/nginx/ssl
+    #是否随宿主机启动
+    restart: always
+    #网卡
+    networks:
+      - docker-app-net
+  php:
+    #php 容器名称
+    container_name: "appdockerphp"
+    # 部署文件 本次部署文件为php7.2
+    build:
+      context: "./php"
+    #目录挂载
+    volumes:
+      - ./nginx/html:/var/www/html/
+    #
+    restart: always
+    # 容器暴露端口
+    expose:
+      - "9000"
+    networks:
+      - docker-app-net
+    #环境变量
+    #environment :
+    #	PHP_RUN_ENV: local
+#配置docker网卡
+networks:
+  docker-app-net:
+    driver: bridge
